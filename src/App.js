@@ -1,4 +1,6 @@
 import * as React from "react";
+
+//Menu
 import { styled, alpha } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -16,7 +18,17 @@ import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
 
-import { red } from "@mui/material/colors";
+//Table
+import Paper from "@mui/material/Paper";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TablePagination from "@mui/material/TablePagination";
+import TableRow from "@mui/material/TableRow";
+
+//Provider
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
@@ -30,6 +42,67 @@ const theme = createTheme({
 		},
 	},
 });
+
+//Table
+const columns = [
+	{ id: "Nombre", label: "Nombre", minWidth: 170 },
+	{ id: "Composición", label: "Composición", minWidth: 100 },
+	{
+		id: "Ancho",
+		label: "Ancho",
+		minWidth: 170,
+		align: "right",
+		format: (value) => value.toLocaleString("en-US"),
+	},
+	{
+		id: "Longitud",
+		label: "Longitud",
+		minWidth: 170,
+		align: "right",
+		format: (value) => value.toLocaleString("en-US"),
+	},
+	{
+		id: "Color",
+		label: "Color",
+		minWidth: 170,
+		align: "right",
+		format: (value) => value.toFixed(2),
+	},
+];
+
+const rows = [
+	{
+		Nombre: "Algodón",
+		Composición: "100% Algodón",
+		Ancho: "150 cm",
+		Longitud: "150 cm",
+		Color: "Blanco",
+	},
+	// ... crear más filas con telas diferentes
+	{
+		Nombre: "Poliester",
+		Composición: "100% Poliester",
+		Ancho: "150 cm",
+		Longitud: "150 cm",
+		Color: "Negro",
+	},
+	{
+		Nombre: "Lino",
+		Composición: "100% Lino",
+		Ancho: "150 cm",
+		Longitud: "150 cm",
+		Color: "Verde",
+	},
+	{
+		Nombre: "Seda",
+		Composición: "100% Seda",
+		Ancho: "150 cm",
+		Longitud: "150 cm",
+		Color: "Amarillo",
+	},
+];
+
+//Menu
 
 const Search = styled("div")(({ theme }) => ({
 	position: "relative",
@@ -72,6 +145,20 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function PrimarySearchAppBar() {
+	//Table
+	const [page, setPage] = React.useState(0);
+	const [rowsPerPage, setRowsPerPage] = React.useState(10);
+
+	const handleChangePage = (event, newPage) => {
+		setPage(newPage);
+	};
+
+	const handleChangeRowsPerPage = (event) => {
+		setRowsPerPage(+event.target.value);
+		setPage(0);
+	};
+
+	//Menu
 	const [anchorEl, setAnchorEl] = React.useState(null);
 	const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
 
@@ -166,6 +253,7 @@ export default function PrimarySearchAppBar() {
 	);
 
 	return (
+		//Provider
 		<ThemeProvider theme={theme}>
 			<Box sx={{ flexGrow: 1 }}>
 				<AppBar position="static">
@@ -234,6 +322,53 @@ export default function PrimarySearchAppBar() {
 				{renderMobileMenu}
 				{renderMenu}
 			</Box>
+
+			<Paper sx={{ width: "100%", overflow: "hidden" }}>
+				<TableContainer sx={{ maxHeight: 440 }}>
+					<Table stickyHeader aria-label="sticky table">
+						<TableHead>
+							<TableRow>
+								{columns.map((column) => (
+									<TableCell
+										key={column.id}
+										align={column.align}
+										style={{ minWidth: column.minWidth }}
+									>
+										{column.label}
+									</TableCell>
+								))}
+							</TableRow>
+						</TableHead>
+						<TableBody>
+							{rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+								return (
+									<TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
+										{columns.map((column) => {
+											const value = row[column.id];
+											return (
+												<TableCell key={column.id} align={column.align}>
+													{column.format && typeof value === "number"
+														? column.format(value)
+														: value}
+												</TableCell>
+											);
+										})}
+									</TableRow>
+								);
+							})}
+						</TableBody>
+					</Table>
+				</TableContainer>
+				<TablePagination
+					rowsPerPageOptions={[10, 25, 100]}
+					component="div"
+					count={rows.length}
+					rowsPerPage={rowsPerPage}
+					page={page}
+					onPageChange={handleChangePage}
+					onRowsPerPageChange={handleChangeRowsPerPage}
+				/>
+			</Paper>
 		</ThemeProvider>
 	);
 }
